@@ -1,4 +1,4 @@
-# Ivy PDI Git Steps
+# Ivy PDI MongoDB Steps
 Pentaho data integration plugin for MongoDB
 
 ## Compile
