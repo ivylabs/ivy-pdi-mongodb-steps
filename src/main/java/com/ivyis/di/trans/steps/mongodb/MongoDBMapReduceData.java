@@ -41,6 +41,7 @@ public class MongoDBMapReduceData extends BaseStepData implements StepDataInterf
 
   private List<MongoField> fields;
   private MongoArrayExpansion mExpansionHandler;
+  int nrPreFields;
 
   public void setMongoFields(List<MongoField> fields) {
     // copy this list
