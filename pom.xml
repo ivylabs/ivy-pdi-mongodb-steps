@@ -4,7 +4,7 @@
 
 	<groupId>com.ivyis.di.trans.steps.mongodb</groupId>
 	<artifactId>ivy-pdi-mongodb-steps</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<description>Ivy Information Systems MongoDB steps plugin.</description>
 	<inceptionYear>2015</inceptionYear>
 	<licenses>
