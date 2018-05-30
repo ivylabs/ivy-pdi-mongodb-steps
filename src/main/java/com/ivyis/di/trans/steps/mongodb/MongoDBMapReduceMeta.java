@@ -4,16 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Counter;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaFactory;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
@@ -27,6 +31,7 @@ import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import com.ivyis.di.trans.steps.mongodb.wrapper.field.MongoField;
@@ -112,10 +117,12 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
   @Override
   public String getXML() {
     final StringBuilder retval = new StringBuilder();
-    retval.append("    " + XMLHandler.addTagValue("hostname", hostname));
-    retval.append("    " + XMLHandler.addTagValue("port", port));
+    retval.append("    " + XMLHandler.addTagValue("servers", servers));
     retval.append("    " + XMLHandler.addTagValue("username", username));
-    retval.append("    " + XMLHandler.addTagValue("password", password));
+    retval.append("    " + XMLHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables( password )));
+    retval.append("    " + XMLHandler.addTagValue("auth_db", authDb));
+    retval.append("    " + XMLHandler.addTagValue("auth_mechanism", authMechanism));
+
     retval.append("    " + XMLHandler.addTagValue("databaseName", databaseName));
     retval.append("    " + XMLHandler.addTagValue("collectionName", collectionName));
     retval.append("    " + XMLHandler.addTagValue("mapFunction", mapFunction));
@@ -148,10 +155,24 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
    */
   public void readData(Node stepnode) throws KettleXMLException {
     try {
-      hostname = XMLHandler.getTagValue(stepnode, "hostname");
-      port = XMLHandler.getTagValue(stepnode, "port");
+      servers = XMLHandler.getTagValue(stepnode, "servers");
+      String hostname = XMLHandler.getTagValue(stepnode, "hostname");
+      String port = XMLHandler.getTagValue(stepnode, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = XMLHandler.getTagValue(stepnode, "username");
-      password = XMLHandler.getTagValue(stepnode, "password");
+      password = Encr.decryptPasswordOptionallyEncrypted(XMLHandler.getTagValue(stepnode, "password"));
+      authDb = XMLHandler.getTagValue(stepnode, "auth_db");
+      authMechanism = XMLHandler.getTagValue(stepnode, "auth_mechanism");
+
       databaseName = XMLHandler.getTagValue(stepnode, "databaseName");
       collectionName = XMLHandler.getTagValue(stepnode, "collectionName");
       mapFunction = XMLHandler.getTagValue(stepnode, "mapFunction");
@@ -191,10 +212,24 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
   public void readRep(Repository rep, ObjectId idStep, List<DatabaseMeta> databases,
       Map<String, Counter> counters) throws KettleException {
     try {
-      hostname = rep.getStepAttributeString(idStep, "hostname");
-      port = rep.getStepAttributeString(idStep, "port");
+      servers = rep.getStepAttributeString(idStep, "servers");
+      String hostname = rep.getStepAttributeString(idStep, "hostname");
+      String port = rep.getStepAttributeString(idStep, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = rep.getStepAttributeString(idStep, "username");
-      password = rep.getStepAttributeString(idStep, "password");
+      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString(idStep, "password") );
+      authDb = rep.getStepAttributeString(idStep, "auth_db");
+      authMechanism = rep.getStepAttributeString(idStep, "auth_mechanism");
+
       databaseName = rep.getStepAttributeString(idStep, "databaseName");
       collectionName = rep.getStepAttributeString(idStep, "collectionName");
       mapFunction = rep.getStepAttributeString(idStep, "mapFunction");
@@ -229,10 +264,12 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
   public void saveRep(Repository rep, ObjectId idTransformation, ObjectId idStep)
       throws KettleException {
     try {
-      rep.saveStepAttribute(idTransformation, idStep, "hostname", hostname);
-      rep.saveStepAttribute(idTransformation, idStep, "port", port);
+      rep.saveStepAttribute(idTransformation, idStep, "servers", servers);
       rep.saveStepAttribute(idTransformation, idStep, "username", username);
       rep.saveStepAttribute(idTransformation, idStep, "password", password);
+      rep.saveStepAttribute(idTransformation, idStep, "auth_db", authDb);
+      rep.saveStepAttribute(idTransformation, idStep, "auth_mechanism", authMechanism);
+
       rep.saveStepAttribute(idTransformation, idStep, "databaseName", databaseName);
       rep.saveStepAttribute(idTransformation, idStep, "collectionName", collectionName);
       rep.saveStepAttribute(idTransformation, idStep, "mapFunction", mapFunction);
@@ -258,27 +295,32 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
   /**
    * {@inheritDoc}
    */
+
   @Override
-  public void getFields(RowMetaInterface r, String origin, RowMetaInterface[] info,
-      StepMeta nextStep, VariableSpace space) {
-    if (outputAsJson || fields == null || fields.size() == 0) {
-      final ValueMetaInterface jsonValueMeta =
-          new ValueMeta(jsonField, ValueMetaInterface.TYPE_STRING);
-      jsonValueMeta.setOrigin(origin);
-      r.addValueMeta(jsonValueMeta);
-    } else {
-      for (MongoField f : fields) {
-        final ValueMetaInterface vm = new ValueMeta();
-        vm.setName(f.mFieldName);
-        vm.setOrigin(origin);
-        vm.setType(ValueMeta.getType(f.mKettleType));
-        if (f.mIndexedVals != null) {
-          vm.setIndex(f.mIndexedVals.toArray()); // indexed values
+  public void getFields(RowMetaInterface r, String origin, RowMetaInterface[] info, StepMeta nextStep, VariableSpace space, Repository repository,
+                        IMetaStore metaStore ) throws KettleStepException {
+    try {
+      if ( outputAsJson || fields == null || fields.size() == 0 ) {
+        final ValueMetaInterface jsonValueMeta =
+          new ValueMeta( jsonField, ValueMetaInterface.TYPE_STRING );
+        jsonValueMeta.setOrigin( origin );
+        r.addValueMeta( jsonValueMeta );
+      } else {
+        for ( MongoField f : fields ) {
+          final ValueMetaInterface vm = ValueMetaFactory.createValueMeta( f.mFieldName, ValueMeta.getType( f.mKettleType ) );
+          vm.setOrigin( origin );
+
+          if ( f.mIndexedVals != null ) {
+            vm.setIndex( f.mIndexedVals.toArray() ); // indexed values
+          }
+          r.addValueMeta( vm );
         }
-        r.addValueMeta(vm);
       }
+    } catch(Exception e) {
+      throw new KettleStepException( "Unable to get fields from lookup", e );
     }
   }
+
 
   /**
    * {@inheritDoc}
@@ -304,12 +346,6 @@ public class MongoDBMapReduceMeta extends MongoDBMeta implements
    */
   public void setDefault() {}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void check(List<CheckResultInterface> remarks, TransMeta transmeta, StepMeta stepMeta,
-      RowMetaInterface prev, String[] input, String[] output, RowMetaInterface info) {}
 
   /**
    * Get the Step dialog, needs for configure the step.

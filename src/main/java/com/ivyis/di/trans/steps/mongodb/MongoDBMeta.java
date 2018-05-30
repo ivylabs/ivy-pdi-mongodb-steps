@@ -11,11 +11,8 @@ import org.pentaho.di.trans.step.BaseStepMeta;
  */
 public abstract class MongoDBMeta extends BaseStepMeta {
 
-  /** Hostname for database connection. */
-  protected String hostname;
-
-  /** Port for database connection. */
-  protected String port;
+  /** The servers list. */
+  protected String servers;
 
   /** Username for database connection. */
   protected String username;
@@ -23,27 +20,18 @@ public abstract class MongoDBMeta extends BaseStepMeta {
   /** Password for database connection. */
   protected String password;
 
+  /** authentication database */
+  protected String authDb;
+
+  /** authentication mechanism */
+  protected String authMechanism;
+
   /** Database name connection. */
   protected String databaseName;
 
   /** Collection name connection. */
   protected String collectionName;
 
-  public String getHostname() {
-    return hostname;
-  }
-
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
-
-  public String getPort() {
-    return port;
-  }
-
-  public void setPort(String port) {
-    this.port = port;
-  }
 
   public String getUsername() {
     return username;
@@ -75,5 +63,29 @@ public abstract class MongoDBMeta extends BaseStepMeta {
 
   public void setCollectionName(String collectionName) {
     this.collectionName = collectionName;
+  }
+
+  public String getAuthDb() {
+    return authDb;
+  }
+
+  public void setAuthDb( String authDb ) {
+    this.authDb = authDb;
+  }
+
+  public String getAuthMechanism() {
+    return authMechanism;
+  }
+
+  public void setAuthMechanism( String authMechanism ) {
+    this.authMechanism = authMechanism;
+  }
+
+  public String getServers() {
+    return servers;
+  }
+
+  public void setServers( String servers ) {
+    this.servers = servers;
   }
 }

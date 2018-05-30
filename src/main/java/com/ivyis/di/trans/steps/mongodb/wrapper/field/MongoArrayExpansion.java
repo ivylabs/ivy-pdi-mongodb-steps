@@ -3,6 +3,7 @@ package com.ivyis.di.trans.steps.mongodb.wrapper.field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -44,7 +45,7 @@ public class MongoArrayExpansion {
    * @throws KettleException if a problem occurs.
    */
   public void init() throws KettleException {
-    if (Const.isEmpty(mExpansionPath)) {
+    if (StringUtils.isEmpty(mExpansionPath)) {
       throw new KettleException(BaseMessages.getString(PKG, "MongoDbInput.ErrorMessage.NoPathSet"));
     }
     if (mPathParts != null) {

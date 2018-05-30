@@ -1,5 +1,6 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -94,10 +95,6 @@ public class MongoDBMapReduce extends BaseStep implements StepInterface {
       meta = (MongoDBMapReduceMeta) smi;
       data = (MongoDBMapReduceData) sdi;
 
-      data.hostname = environmentSubstitute(meta.getHostname());
-      data.port =
-          Const.toInt(environmentSubstitute(meta.getPort()),
-              Integer.parseInt(MongoClientWrapper.MONGODB_DEFAUL_PORT));
       data.databaseName = environmentSubstitute(meta.getDatabaseName());
       data.collectionName = environmentSubstitute(meta.getCollectionName());
       data.mapFunction = environmentSubstitute(meta.getMapFunction());
@@ -105,12 +102,12 @@ public class MongoDBMapReduce extends BaseStep implements StepInterface {
       data.setMongoFields(meta.getFields());
 
       try {
-        if (Const.isEmpty(data.databaseName)) {
+        if (StringUtils.isEmpty(data.databaseName)) {
           throw new Exception(BaseMessages.getString(PKG,
               "MongoDBMapReduce.ErrorMessage.NoDBSpecified"));
         }
 
-        if (Const.isEmpty(data.collectionName)) {
+        if (StringUtils.isEmpty(data.collectionName)) {
           throw new Exception(BaseMessages.getString(PKG,
               "MongoDBMapReduce.ErrorMessage.NoCollectionSpecified"));
         }
@@ -128,7 +125,7 @@ public class MongoDBMapReduce extends BaseStep implements StepInterface {
         return true;
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "MongoDBMapReduce.ErrorConnectingToMongoDb.Exception",
-            data.hostname, "" + data.port, data.databaseName, data.collectionName), e);
+            meta.getServers(), "", data.databaseName, data.collectionName), e);
         return false;
       }
     } else {

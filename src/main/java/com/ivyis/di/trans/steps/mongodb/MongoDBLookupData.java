@@ -1,5 +1,6 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +29,7 @@ import com.mongodb.DBObject;
  */
 public class MongoDBLookupData extends BaseStepData implements StepDataInterface {
 
-  public String hostname;
   public String databaseName;
-  public int port;
   public String collectionName;
   public RowMetaInterface outputRowMeta;
   public MongoClientWrapper clientWrapper;
@@ -53,7 +52,7 @@ public class MongoDBLookupData extends BaseStepData implements StepDataInterface
   }
 
   public static boolean discoverFields(final MongoDBLookupMeta meta, final VariableSpace vars,
-      final int docsToSample) throws UnknownHostException, KettleException {
+      final int docsToSample) throws UnknownHostException, KettleException, UnsupportedEncodingException {
     final MongoClientWrapper clientWrapper = new MongoClientWrapper(meta, vars);
     try {
       final String db = vars.environmentSubstitute(meta.getDatabaseName());

@@ -1,5 +1,6 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMeta;
@@ -92,20 +93,17 @@ public class MongoDBInsert extends BaseStep implements StepInterface {
       meta = (MongoDBInsertMeta) smi;
       data = (MongoDBInsertData) sdi;
 
-      data.hostname = environmentSubstitute(meta.getHostname());
-      data.port = Const.toInt(environmentSubstitute(meta.getPort()),
-          Integer.parseInt(MongoClientWrapper.MONGODB_DEFAUL_PORT));
       data.databaseName = environmentSubstitute(meta.getDatabaseName());
       data.collectionName = environmentSubstitute(meta
           .getCollectionName());
 
       try {
-        if (Const.isEmpty(data.databaseName)) {
+        if ( StringUtils.isEmpty( data.databaseName )) {
           throw new Exception(BaseMessages.getString(PKG,
               "MongoDBMapReduce.ErrorMessage.NoDBSpecified"));
         }
 
-        if (Const.isEmpty(data.collectionName)) {
+        if (StringUtils.isEmpty(data.collectionName)) {
           throw new Exception(
               BaseMessages
                   .getString(PKG,
@@ -122,7 +120,7 @@ public class MongoDBInsert extends BaseStep implements StepInterface {
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG,
             "MongoDBMapReduce.ErrorConnectingToMongoDb.Exception",
-            data.hostname, "" + data.port, data.databaseName,
+            meta.getServers(), "", data.databaseName,
             data.collectionName), e);
         return false;
       }
