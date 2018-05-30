@@ -9,6 +9,7 @@ import org.pentaho.di.core.Const;
 import org.pentaho.di.core.Counter;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.database.DatabaseMeta;
+import org.pentaho.di.core.encryption.Encr;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
@@ -29,6 +30,7 @@ import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import com.ivyis.di.ui.trans.steps.mongodb.MongoDBLookupDialog;
@@ -178,12 +180,15 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
   @Override
   public String getXML() {
     final StringBuilder retval = new StringBuilder();
-    retval.append("    " + XMLHandler.addTagValue("hostname", hostname));
-    retval.append("    " + XMLHandler.addTagValue("port", port));
+    retval.append("    " + XMLHandler.addTagValue("servers", servers));
     retval.append("    " + XMLHandler.addTagValue("username", username));
-    retval.append("    " + XMLHandler.addTagValue("password", password));
+    retval.append("    " + XMLHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables( password )));
+    retval.append("    " + XMLHandler.addTagValue("auth_db", authDb));
+    retval.append("    " + XMLHandler.addTagValue("auth_mechanism", authMechanism));
+
     retval.append("    " + XMLHandler.addTagValue("databaseName", databaseName));
     retval.append("    " + XMLHandler.addTagValue("collectionName", collectionName));
+
     retval.append("    <lookup>").append(Const.CR);
     retval.append("      ").append(
         XMLHandler.addTagValue("fail_on_multiple", failingOnMultipleResults));
@@ -221,14 +226,15 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
    */
   public void readData(Node stepnode) throws KettleXMLException {
     try {
-      String dtype;
-      hostname = XMLHandler.getTagValue(stepnode, "hostname");
-      port = XMLHandler.getTagValue(stepnode, "port");
+      servers = XMLHandler.getTagValue(stepnode, "servers");
       username = XMLHandler.getTagValue(stepnode, "username");
-      password = XMLHandler.getTagValue(stepnode, "password");
+      password = Encr.decryptPasswordOptionallyEncrypted(XMLHandler.getTagValue(stepnode, "password"));
+      authDb = XMLHandler.getTagValue(stepnode, "auth_db");
+      authMechanism = XMLHandler.getTagValue(stepnode, "auth_mechanism");
+
       databaseName = XMLHandler.getTagValue(stepnode, "databaseName");
       collectionName = XMLHandler.getTagValue(stepnode, "collectionName");
-
+      
       final Node lookup = XMLHandler.getSubNode(stepnode, "lookup");
 
       final int nrkeys = XMLHandler.countNodes(lookup, "key");
@@ -256,7 +262,7 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
           returnValueNewName[i] = returnValueField[i];
         }
         returnValueDefault[i] = XMLHandler.getTagValue(vnode, "default");
-        dtype = XMLHandler.getTagValue(vnode, "type");
+        String dtype = XMLHandler.getTagValue(vnode, "type");
         returnValueDefaultType[i] = ValueMeta.getType(dtype);
         if (returnValueDefaultType[i] < 0) {
           returnValueDefaultType[i] = ValueMetaInterface.TYPE_STRING;
@@ -272,19 +278,15 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
     }
   }
 
-  /**
-   * {@inheritDoc}
-   * 
-   * @throws KettleException
-   */
   @Override
-  public void readRep(Repository rep, ObjectId idStep, List<DatabaseMeta> databases,
-      Map<String, Counter> counters) throws KettleException {
+  public void readRep( Repository rep, IMetaStore metaStore, ObjectId idStep, List<DatabaseMeta> databases ) throws KettleException {
     try {
-      hostname = rep.getStepAttributeString(idStep, "hostname");
-      port = rep.getStepAttributeString(idStep, "port");
+      servers = rep.getStepAttributeString(idStep, "servers");
       username = rep.getStepAttributeString(idStep, "username");
-      password = rep.getStepAttributeString(idStep, "password");
+      password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString(idStep, "password") );
+      authDb = rep.getStepAttributeString(idStep, "auth_db");
+      authMechanism = rep.getStepAttributeString(idStep, "auth_mechanism");
+
       databaseName = rep.getStepAttributeString(idStep, "databaseName");
       collectionName = rep.getStepAttributeString(idStep, "collectionName");
       eatingRowOnLookupFailure = rep.getStepAttributeBoolean(idStep, "eat_row_on_failure");
@@ -319,13 +321,15 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
    * @throws KettleException
    */
   @Override
-  public void saveRep(Repository rep, ObjectId idTransformation, ObjectId idStep)
+  public void saveRep(Repository rep, IMetaStore metaStore, ObjectId idTransformation, ObjectId idStep)
       throws KettleException {
     try {
-      rep.saveStepAttribute(idTransformation, idStep, "hostname", hostname);
-      rep.saveStepAttribute(idTransformation, idStep, "port", port);
+      rep.saveStepAttribute(idTransformation, idStep, "servers", servers);
       rep.saveStepAttribute(idTransformation, idStep, "username", username);
       rep.saveStepAttribute(idTransformation, idStep, "password", password);
+      rep.saveStepAttribute(idTransformation, idStep, "auth_db", authDb);
+      rep.saveStepAttribute(idTransformation, idStep, "auth_mechanism", authMechanism);
+
       rep.saveStepAttribute(idTransformation, idStep, "databaseName", databaseName);
       rep.saveStepAttribute(idTransformation, idStep, "collectionName", collectionName);
       rep.saveStepAttribute(idTransformation, idStep, "fail_on_multiple", failingOnMultipleResults);

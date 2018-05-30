@@ -46,6 +46,7 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
+import org.pentaho.di.ui.core.database.dialog.DatabaseDialog;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.core.dialog.ShowBrowserDialog;
 import org.pentaho.di.ui.core.widget.ColumnInfo;
@@ -76,10 +77,12 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
   private CTabItem wMongoConfigTab;
   private CTabItem wMongoFieldsTab;
 
-  private TextVar wHostname;
-  private TextVar wPort;
+  private TextVar wServers;
   private TextVar wAuthUser;
   private LabelTextVar wAuthPass;
+  private TextVar wAuthDb;
+  private TextVar wAuthMechanism;
+
   private CCombo wDbName;
   private Button wgetDbsBut;
   private CCombo wCollection;
@@ -172,51 +175,32 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     props.setLook(wMongoConfigComp);
     wMongoConfigComp.setLayout(mainOptionsLayout);
 
-    // Hostname line...
-    final Label wlHostname = new Label(wMongoConfigComp, SWT.RIGHT);
-    wlHostname.setText(BaseMessages.getString(PKG, "MongoDBLookupDialog.Hostname.Label"));
-    props.setLook(wlHostname);
-    final FormData fdlHostname = new FormData();
-    fdlHostname.left = new FormAttachment(0, 0);
-    fdlHostname.right = new FormAttachment(middle, -margin);
-    fdlHostname.top = new FormAttachment(0, margin);
-    wlHostname.setLayoutData(fdlHostname);
+    // Servers line...
+    final Label wlServers = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlServers.setText("Servers");
+    props.setLook(wlServers);
+    final FormData fdlServers = new FormData();
+    fdlServers.left = new FormAttachment(0, 0);
+    fdlServers.right = new FormAttachment(middle, -margin);
+    fdlServers.top = new FormAttachment(0, margin);
+    wlServers.setLayoutData(fdlServers);
 
-    wHostname = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wHostname);
-    wHostname.addModifyListener(lsMod);
+    wServers = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook( wServers );
+    wServers.addModifyListener(lsMod);
     final FormData fdHostname = new FormData();
     fdHostname.left = new FormAttachment(middle, 0);
     fdHostname.top = new FormAttachment(0, margin);
     fdHostname.right = new FormAttachment(100, 0);
-    wHostname.setLayoutData(fdHostname);
+    wServers.setLayoutData(fdHostname);
 
-    // Port line...
-    final Label wlPort = new Label(wMongoConfigComp, SWT.RIGHT);
-    wlPort.setText(BaseMessages.getString(PKG, "MongoDBLookupDialog.Port.Label"));
-    props.setLook(wlPort);
-    final FormData fdlPort = new FormData();
-    fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.right = new FormAttachment(middle, -margin);
-    fdlPort.top = new FormAttachment(wHostname, margin * 2);
-    wlPort.setLayoutData(fdlPort);
-
-    wPort = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPort);
-    wPort.addModifyListener(lsMod);
-    final FormData fdPort = new FormData();
-    fdPort.left = new FormAttachment(middle, 0);
-    fdPort.top = new FormAttachment(wHostname, margin * 2);
-    fdPort.right = new FormAttachment(100, 0);
-    wPort.setLayoutData(fdPort);
-
-    // UserName field
+    // AuthUser field
     final Label wlAuthUser = new Label(wMongoConfigComp, SWT.RIGHT);
-    wlAuthUser.setText(BaseMessages.getString(PKG, "MongoDBLookupDialog.AuthUser.Label"));
+    wlAuthUser.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.AuthUser.Label"));
     props.setLook(wlAuthUser);
     final FormData fdlAuthUser = new FormData();
     fdlAuthUser.left = new FormAttachment(0, 0);
-    fdlAuthUser.top = new FormAttachment(wPort, margin * 2);
+    fdlAuthUser.top = new FormAttachment(wServers, margin * 2);
     fdlAuthUser.right = new FormAttachment(middle, -margin);
     wlAuthUser.setLayoutData(fdlAuthUser);
 
@@ -225,15 +209,14 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     props.setLook(wAuthUser);
     final FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(middle, 0);
-    fdAuthUser.top = new FormAttachment(wPort, margin * 2);
+    fdAuthUser.top = new FormAttachment(wServers, margin * 2);
     fdAuthUser.right = new FormAttachment(100, 0);
     wAuthUser.setLayoutData(fdAuthUser);
 
     // Password field
-    wAuthPass =
-        new LabelTextVar(transMeta, wMongoConfigComp, BaseMessages.getString(PKG,
-            "MongoDBLookupDialog.AuthPass.Label"), BaseMessages.getString(PKG,
-            "MongoDBLookupDialog.AuthPass.Tooltip"));
+    wAuthPass = new LabelTextVar(transMeta, wMongoConfigComp, BaseMessages.getString(PKG,
+      "MongoDBMapReduceDialog.AuthPass.Label"), BaseMessages.getString(PKG,
+      "MongoDBMapReduceDialog.AuthPass.Tooltip"));
     props.setLook(wAuthPass);
     wAuthPass.setEchoChar('*');
     wAuthPass.addModifyListener(lsMod);
@@ -250,6 +233,45 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
       }
     });
 
+
+    // AuthDb field
+    final Label wlAuthDb = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlAuthDb.setText("Authentication database");
+    props.setLook(wlAuthDb);
+    final FormData fdlAuthDb = new FormData();
+    fdlAuthDb.left = new FormAttachment(0, 0);
+    fdlAuthDb.top = new FormAttachment(wAuthPass, margin * 2);
+    fdlAuthDb.right = new FormAttachment(middle, -margin);
+    wlAuthDb.setLayoutData(fdlAuthDb);
+
+    wAuthDb = new TextVar(this.transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthDb.setEditable(true);
+    props.setLook(wAuthDb);
+    final FormData fdAuthDb = new FormData();
+    fdAuthDb.left = new FormAttachment(middle, 0);
+    fdAuthDb.top = new FormAttachment(wAuthPass, margin * 2);
+    fdAuthDb.right = new FormAttachment(100, 0);
+    wAuthDb.setLayoutData(fdAuthDb);
+
+    // AuthMechanism field
+    final Label wlAuthMechanism = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlAuthMechanism.setText("Authentication Mechanism");
+    props.setLook(wlAuthMechanism);
+    final FormData fdlAuthMechanism = new FormData();
+    fdlAuthMechanism.left = new FormAttachment(0, 0);
+    fdlAuthMechanism.top = new FormAttachment(wAuthDb, margin * 2);
+    fdlAuthMechanism.right = new FormAttachment(middle, -margin);
+    wlAuthMechanism.setLayoutData(fdlAuthMechanism);
+
+    wAuthMechanism = new TextVar(this.transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthMechanism.setEditable(true);
+    props.setLook(wAuthMechanism);
+    final FormData fdAuthMechanism = new FormData();
+    fdAuthMechanism.left = new FormAttachment(middle, 0);
+    fdAuthMechanism.top = new FormAttachment(wAuthDb, margin * 2);
+    fdAuthMechanism.right = new FormAttachment(100, 0);
+    wAuthMechanism.setLayoutData(fdAuthMechanism);
+
     // DbName input ...
     //
     final Label wlDbName = new Label(wMongoConfigComp, SWT.RIGHT);
@@ -258,14 +280,14 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     final FormData fdlDbName = new FormData();
     fdlDbName.left = new FormAttachment(0, 0);
     fdlDbName.right = new FormAttachment(middle, -margin);
-    fdlDbName.top = new FormAttachment(wAuthPass, margin);
+    fdlDbName.top = new FormAttachment(wAuthMechanism, margin);
     wlDbName.setLayoutData(fdlDbName);
 
     wgetDbsBut = new Button(wMongoConfigComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wgetDbsBut);
     wgetDbsBut.setText(BaseMessages.getString(PKG, "MongoDBLookupDialog.DbName.Button"));
     final FormData fd = new FormData();
-    fd.top = new FormAttachment(wAuthPass, margin);
+    fd.top = new FormAttachment(wAuthMechanism, margin);
     fd.right = new FormAttachment(100, 0);
     wgetDbsBut.setLayoutData(fd);
 
@@ -281,7 +303,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     wDbName.addModifyListener(lsMod);
     final FormData fdDbName = new FormData();
     fdDbName.left = new FormAttachment(middle, 0);
-    fdDbName.top = new FormAttachment(wAuthPass, margin);
+    fdDbName.top = new FormAttachment(wAuthMechanism, margin);
     fdDbName.right = new FormAttachment(wgetDbsBut, 0);
     wDbName.setLayoutData(fdDbName);
 
@@ -663,8 +685,12 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     return stepname;
   }
 
+  @Override protected DatabaseDialog getDatabaseDialog( Shell shell ) {
+    return super.getDatabaseDialog( shell );
+  }
+
   protected void getlookup() {
-    if (!Const.isEmpty(wHostname.getText()) && !Const.isEmpty(wDbName.getText())
+    if (!Const.isEmpty(wServers.getText()) && !Const.isEmpty(wDbName.getText())
         && !Const.isEmpty(wCollection.getText())) {
       final int samples = 100;
       if (samples > 0) {
@@ -691,8 +717,8 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     } else {
       // pop up an error dialog
       String missingConDetails = "";
-      if (Const.isEmpty(wHostname.getText())) {
-        missingConDetails += " host name(s)";
+      if (Const.isEmpty(wServers.getText())) {
+        missingConDetails += " server(s)";
       }
       if (Const.isEmpty(wDbName.getText())) {
         missingConDetails += " database";
@@ -736,9 +762,9 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     final String current = wDbName.getText();
     wDbName.removeAll();
 
-    final String hostname = transMeta.environmentSubstitute(wHostname.getText());
+    final String servers = transMeta.environmentSubstitute(wServers.getText());
 
-    if (!Const.isEmpty(hostname)) {
+    if (!Const.isEmpty(servers)) {
       final MongoDBLookupMeta meta = new MongoDBLookupMeta();
       getInfo(meta, false);
       try {
@@ -776,13 +802,13 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
   }
 
   private void setupCollectionNamesForDB() {
-    final String hostname = transMeta.environmentSubstitute(wHostname.getText());
+    final String servers = transMeta.environmentSubstitute(wServers.getText());
     final String dB = transMeta.environmentSubstitute(wDbName.getText());
 
     final String current = wCollection.getText();
     wCollection.removeAll();
 
-    if (!Const.isEmpty(hostname) && !Const.isEmpty(dB)) {
+    if (!Const.isEmpty(servers) && !Const.isEmpty(dB)) {
       final MongoDBLookupMeta meta = new MongoDBLookupMeta();
       getInfo(meta, false);
       try {
@@ -807,8 +833,8 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
       // popup some feedback
 
       String missingConnDetails = "";
-      if (Const.isEmpty(hostname)) {
-        missingConnDetails += "host name(s)";
+      if (Const.isEmpty(servers)) {
+        missingConnDetails += "server(s)";
       }
       if (Const.isEmpty(dB)) {
         missingConnDetails += " database";
@@ -926,12 +952,14 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData(MongoDBLookupMeta meta) {
-    wHostname.setText(Const.NVL(meta.getHostname(), "localhost"));
-    wPort.setText(Const.NVL(meta.getPort(), MongoClientWrapper.MONGODB_DEFAUL_PORT));
-    wDbName.setText(Const.NVL(meta.getDatabaseName(), ""));
-    wCollection.setText(Const.NVL(meta.getCollectionName(), ""));
+    wServers.setText(Const.NVL(meta.getServers(), "localhost:27017"));
     wAuthUser.setText(Const.NVL(meta.getUsername(), ""));
     wAuthPass.setText(Const.NVL(meta.getPassword(), ""));
+    wAuthDb.setText(Const.NVL(meta.getAuthDb(), ""));
+    wAuthMechanism.setText(Const.NVL(meta.getAuthMechanism(), ""));
+
+    wDbName.setText(Const.NVL(meta.getDatabaseName(), ""));
+    wCollection.setText(Const.NVL(meta.getCollectionName(), ""));
 
     if (meta.getStreamKeyField1() != null) {
       wKey.clearAll();
@@ -991,18 +1019,11 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
    * @param info the push notification step meta data.
    */
   public void getInfo(MongoDBLookupMeta info, boolean validation) {
-    if (Const.isEmpty(wHostname.getText())) {
-      wHostname.setText("localhost");
-    }
-    info.setHostname(wHostname.getText());
-
-    if (Const.isEmpty(wPort.getText())) {
-      wPort.setText(MongoClientWrapper.MONGODB_DEFAUL_PORT);
-    }
-    info.setPort(wPort.getText());
-
+    info.setServers( Const.NVL(wServers.getText(), "localhost:27017"));
     info.setUsername(Const.NVL(wAuthUser.getText(), ""));
     info.setPassword(Const.NVL(wAuthPass.getText(), ""));
+    info.setAuthDb(Const.NVL(wAuthDb.getText(), ""));
+    info.setAuthMechanism(Const.NVL(wAuthMechanism.getText(), ""));
 
     if (validation && Const.isEmpty(wDbName.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);

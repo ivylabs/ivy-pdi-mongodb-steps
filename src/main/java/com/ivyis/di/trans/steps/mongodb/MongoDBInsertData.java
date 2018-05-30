@@ -18,8 +18,6 @@ public class MongoDBInsertData extends BaseStepData implements
   public MongoClientWrapper clientWrapper;
   public RowMetaInterface outputRowMeta;
   public DBObject[] records;
-  public String hostname;
-  public int port;
   public String databaseName;
   public String collectionName;
 

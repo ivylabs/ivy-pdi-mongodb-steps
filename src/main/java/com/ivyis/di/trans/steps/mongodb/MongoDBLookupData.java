@@ -28,9 +28,7 @@ import com.mongodb.DBObject;
  */
 public class MongoDBLookupData extends BaseStepData implements StepDataInterface {
 
-  public String hostname;
   public String databaseName;
-  public int port;
   public String collectionName;
   public RowMetaInterface outputRowMeta;
   public MongoClientWrapper clientWrapper;

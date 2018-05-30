@@ -75,10 +75,12 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
   private CTabItem wMongoReduceTab;
   private CTabItem wMongoFieldsTab;
 
-  private TextVar wHostname;
-  private TextVar wPort;
+  private TextVar wServers;
   private TextVar wAuthUser;
   private LabelTextVar wAuthPass;
+  private TextVar wAuthDb;
+  private TextVar wAuthMechanism;
+
   private CCombo wDbName;
   private Button wgetDbsBut;
   private CCombo wCollection;
@@ -162,51 +164,32 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     props.setLook(wMongoConfigComp);
     wMongoConfigComp.setLayout(mainOptionsLayout);
 
-    // Hostname line...
-    final Label wlHostname = new Label(wMongoConfigComp, SWT.RIGHT);
-    wlHostname.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.Hostname.Label"));
-    props.setLook(wlHostname);
-    final FormData fdlHostname = new FormData();
-    fdlHostname.left = new FormAttachment(0, 0);
-    fdlHostname.right = new FormAttachment(middle, -margin);
-    fdlHostname.top = new FormAttachment(0, margin);
-    wlHostname.setLayoutData(fdlHostname);
+    // Servers line...
+    final Label wlServers = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlServers.setText("Servers");
+    props.setLook(wlServers);
+    final FormData fdlServers = new FormData();
+    fdlServers.left = new FormAttachment(0, 0);
+    fdlServers.right = new FormAttachment(middle, -margin);
+    fdlServers.top = new FormAttachment(0, margin);
+    wlServers.setLayoutData(fdlServers);
 
-    wHostname = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wHostname);
-    wHostname.addModifyListener(lsMod);
+    wServers = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook( wServers );
+    wServers.addModifyListener(lsMod);
     final FormData fdHostname = new FormData();
     fdHostname.left = new FormAttachment(middle, 0);
     fdHostname.top = new FormAttachment(0, margin);
     fdHostname.right = new FormAttachment(100, 0);
-    wHostname.setLayoutData(fdHostname);
+    wServers.setLayoutData(fdHostname);
 
-    // Port line...
-    final Label wlPort = new Label(wMongoConfigComp, SWT.RIGHT);
-    wlPort.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.Port.Label"));
-    props.setLook(wlPort);
-    final FormData fdlPort = new FormData();
-    fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.right = new FormAttachment(middle, -margin);
-    fdlPort.top = new FormAttachment(wHostname, margin * 2);
-    wlPort.setLayoutData(fdlPort);
-
-    wPort = new TextVar(transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPort);
-    wPort.addModifyListener(lsMod);
-    final FormData fdPort = new FormData();
-    fdPort.left = new FormAttachment(middle, 0);
-    fdPort.top = new FormAttachment(wHostname, margin * 2);
-    fdPort.right = new FormAttachment(100, 0);
-    wPort.setLayoutData(fdPort);
-
-    // UserName field
+    // AuthUser field
     final Label wlAuthUser = new Label(wMongoConfigComp, SWT.RIGHT);
     wlAuthUser.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.AuthUser.Label"));
     props.setLook(wlAuthUser);
     final FormData fdlAuthUser = new FormData();
     fdlAuthUser.left = new FormAttachment(0, 0);
-    fdlAuthUser.top = new FormAttachment(wPort, margin * 2);
+    fdlAuthUser.top = new FormAttachment(wServers, margin * 2);
     fdlAuthUser.right = new FormAttachment(middle, -margin);
     wlAuthUser.setLayoutData(fdlAuthUser);
 
@@ -215,15 +198,14 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     props.setLook(wAuthUser);
     final FormData fdAuthUser = new FormData();
     fdAuthUser.left = new FormAttachment(middle, 0);
-    fdAuthUser.top = new FormAttachment(wPort, margin * 2);
+    fdAuthUser.top = new FormAttachment(wServers, margin * 2);
     fdAuthUser.right = new FormAttachment(100, 0);
     wAuthUser.setLayoutData(fdAuthUser);
 
     // Password field
-    wAuthPass =
-        new LabelTextVar(transMeta, wMongoConfigComp, BaseMessages.getString(PKG,
-            "MongoDBMapReduceDialog.AuthPass.Label"), BaseMessages.getString(PKG,
-            "MongoDBMapReduceDialog.AuthPass.Tooltip"));
+    wAuthPass = new LabelTextVar(transMeta, wMongoConfigComp, BaseMessages.getString(PKG,
+      "MongoDBMapReduceDialog.AuthPass.Label"), BaseMessages.getString(PKG,
+      "MongoDBMapReduceDialog.AuthPass.Tooltip"));
     props.setLook(wAuthPass);
     wAuthPass.setEchoChar('*');
     wAuthPass.addModifyListener(lsMod);
@@ -240,6 +222,45 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
       }
     });
 
+
+    // AuthDb field
+    final Label wlAuthDb = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlAuthDb.setText("Authentication database");
+    props.setLook(wlAuthDb);
+    final FormData fdlAuthDb = new FormData();
+    fdlAuthDb.left = new FormAttachment(0, 0);
+    fdlAuthDb.top = new FormAttachment(wAuthPass, margin * 2);
+    fdlAuthDb.right = new FormAttachment(middle, -margin);
+    wlAuthDb.setLayoutData(fdlAuthDb);
+
+    wAuthDb = new TextVar(this.transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthDb.setEditable(true);
+    props.setLook(wAuthDb);
+    final FormData fdAuthDb = new FormData();
+    fdAuthDb.left = new FormAttachment(middle, 0);
+    fdAuthDb.top = new FormAttachment(wAuthPass, margin * 2);
+    fdAuthDb.right = new FormAttachment(100, 0);
+    wAuthDb.setLayoutData(fdAuthDb);
+
+    // AuthMechanism field
+    final Label wlAuthMechanism = new Label(wMongoConfigComp, SWT.RIGHT);
+    wlAuthMechanism.setText("Authentication Mechanism");
+    props.setLook(wlAuthMechanism);
+    final FormData fdlAuthMechanism = new FormData();
+    fdlAuthMechanism.left = new FormAttachment(0, 0);
+    fdlAuthMechanism.top = new FormAttachment(wAuthDb, margin * 2);
+    fdlAuthMechanism.right = new FormAttachment(middle, -margin);
+    wlAuthMechanism.setLayoutData(fdlAuthMechanism);
+
+    wAuthMechanism = new TextVar(this.transMeta, wMongoConfigComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAuthMechanism.setEditable(true);
+    props.setLook(wAuthMechanism);
+    final FormData fdAuthMechanism = new FormData();
+    fdAuthMechanism.left = new FormAttachment(middle, 0);
+    fdAuthMechanism.top = new FormAttachment(wAuthDb, margin * 2);
+    fdAuthMechanism.right = new FormAttachment(100, 0);
+    wAuthMechanism.setLayoutData(fdAuthMechanism);
+
     // DbName input ...
     final Label wlDbName = new Label(wMongoConfigComp, SWT.RIGHT);
     wlDbName.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.DbName.Label"));
@@ -247,14 +268,14 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     final FormData fdlDbName = new FormData();
     fdlDbName.left = new FormAttachment(0, 0);
     fdlDbName.right = new FormAttachment(middle, -margin);
-    fdlDbName.top = new FormAttachment(wAuthPass, margin);
+    fdlDbName.top = new FormAttachment(wAuthMechanism, margin);
     wlDbName.setLayoutData(fdlDbName);
 
     wgetDbsBut = new Button(wMongoConfigComp, SWT.PUSH | SWT.CENTER);
     props.setLook(wgetDbsBut);
     wgetDbsBut.setText(BaseMessages.getString(PKG, "MongoDBMapReduceDialog.DbName.Button"));
     final FormData fd = new FormData();
-    fd.top = new FormAttachment(wAuthPass, margin);
+    fd.top = new FormAttachment(wAuthMechanism, margin);
     fd.right = new FormAttachment(100, 0);
     wgetDbsBut.setLayoutData(fd);
 
@@ -270,7 +291,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     wDbName.addModifyListener(lsMod);
     final FormData fdDbName = new FormData();
     fdDbName.left = new FormAttachment(middle, 0);
-    fdDbName.top = new FormAttachment(wAuthPass, margin);
+    fdDbName.top = new FormAttachment(wAuthMechanism, margin);
     fdDbName.right = new FormAttachment(wgetDbsBut, 0);
     wDbName.setLayoutData(fdDbName);
     wDbName.addModifyListener(new ModifyListener() {
@@ -715,7 +736,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
   }
 
   private void getFields(MongoDBMapReduceMeta meta) {
-    if (!Const.isEmpty(wHostname.getText()) && !Const.isEmpty(wDbName.getText())
+    if (!Const.isEmpty( wServers.getText()) && !Const.isEmpty(wDbName.getText())
         && !Const.isEmpty(wCollection.getText())) {
       final EnterNumberDialog end =
           new EnterNumberDialog(shell, 100, BaseMessages.getString(PKG,
@@ -753,7 +774,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
       // pop up an error dialog
 
       String missingConDetails = "";
-      if (Const.isEmpty(wHostname.getText())) {
+      if (Const.isEmpty( wServers.getText())) {
         missingConDetails += " host name(s)";
       }
       if (Const.isEmpty(wDbName.getText())) {
@@ -803,7 +824,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     final String current = wDbName.getText();
     wDbName.removeAll();
 
-    final String hostname = transMeta.environmentSubstitute(wHostname.getText());
+    final String hostname = transMeta.environmentSubstitute( wServers.getText());
 
     if (!Const.isEmpty(hostname)) {
       final MongoDBMapReduceMeta meta = new MongoDBMapReduceMeta();
@@ -843,7 +864,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
   }
 
   private void setupCollectionNamesForDB() {
-    final String hostname = transMeta.environmentSubstitute(wHostname.getText());
+    final String hostname = transMeta.environmentSubstitute( wServers.getText());
     final String dB = transMeta.environmentSubstitute(wDbName.getText());
 
     final String current = wCollection.getText();
@@ -917,16 +938,18 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData(MongoDBMapReduceMeta meta) {
-    wHostname.setText(Const.NVL(meta.getHostname(), "localhost"));
-    wPort.setText(Const.NVL(meta.getPort(), MongoClientWrapper.MONGODB_DEFAUL_PORT));
+    wServers.setText(Const.NVL(meta.getServers(), "localhost:27017"));
+    wAuthUser.setText(Const.NVL(meta.getUsername(), ""));
+    wAuthPass.setText(Const.NVL(meta.getPassword(), ""));
+    wAuthDb.setText(Const.NVL(meta.getAuthDb(), ""));
+    wAuthMechanism.setText(Const.NVL(meta.getAuthMechanism(), ""));
+
     wDbName.setText(Const.NVL(meta.getDatabaseName(), ""));
     wCollection.setText(Const.NVL(meta.getCollectionName(), ""));
     wJsonField.setText(Const.NVL(meta.getJsonField(), "json"));
     wMapFuncScript.setText(Const.NVL(meta.getMapFunction(), ""));
     wReduceFuncScript.setText(Const.NVL(meta.getReduceFunction(), ""));
 
-    wAuthUser.setText(Const.NVL(meta.getUsername(), ""));
-    wAuthPass.setText(Const.NVL(meta.getPassword(), ""));
     wOutputAsJson.setSelection(meta.isOutputAsJson());
 
     setFieldTableFields(meta.getFields());
@@ -944,18 +967,11 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
    * @param info the push notification step meta data.
    */
   public void getInfo(MongoDBMapReduceMeta info, boolean validation) {
-    if (Const.isEmpty(wHostname.getText())) {
-      wHostname.setText("localhost");
-    }
-    info.setHostname(wHostname.getText());
-
-    if (Const.isEmpty(wPort.getText())) {
-      wPort.setText(MongoClientWrapper.MONGODB_DEFAUL_PORT);
-    }
-    info.setPort(wPort.getText());
-
+    info.setServers( Const.NVL(wServers.getText(), "localhost:27017"));
     info.setUsername(Const.NVL(wAuthUser.getText(), ""));
     info.setPassword(Const.NVL(wAuthPass.getText(), ""));
+    info.setAuthDb(Const.NVL(wAuthDb.getText(), ""));
+    info.setAuthMechanism(Const.NVL(wAuthMechanism.getText(), ""));
 
     if (validation && Const.isEmpty(wDbName.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);

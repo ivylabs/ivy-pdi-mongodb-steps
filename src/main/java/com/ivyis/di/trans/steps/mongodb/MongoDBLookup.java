@@ -150,10 +150,6 @@ public class MongoDBLookup extends BaseStep implements StepInterface {
       meta = (MongoDBLookupMeta) smi;
       data = (MongoDBLookupData) sdi;
 
-      data.hostname = environmentSubstitute(meta.getHostname());
-      data.port =
-          Const.toInt(environmentSubstitute(meta.getPort()),
-              Integer.parseInt(MongoClientWrapper.MONGODB_DEFAUL_PORT));
       data.databaseName = environmentSubstitute(meta.getDatabaseName());
       data.collectionName = environmentSubstitute(meta.getCollectionName());
 
@@ -161,8 +157,7 @@ public class MongoDBLookup extends BaseStep implements StepInterface {
       for (int i = 0; i < meta.getReturnValueNewName().length; i++) {
         final MongoField mf = new MongoField();
         mf.defaultValue = meta.getReturnValueDefault()[i];
-        mf.mKettleType = ValueMeta.getTypeDesc(meta
-            .getReturnValueDefaultType()[i]);
+        mf.mKettleType = ValueMeta.getTypeDesc(meta.getReturnValueDefaultType()[i]);
         mf.mFieldPath = meta.getReturnValueField()[i];
         mf.mFieldName = meta.getReturnValueNewName()[i];
         mfList.add(mf);
@@ -171,13 +166,11 @@ public class MongoDBLookup extends BaseStep implements StepInterface {
 
       try {
         if (Const.isEmpty(data.databaseName)) {
-          throw new Exception(BaseMessages.getString(PKG,
-              "MongoDBLookup.ErrorMessage.NoDBSpecified"));
+          throw new Exception(BaseMessages.getString(PKG, "MongoDBLookup.ErrorMessage.NoDBSpecified"));
         }
 
         if (Const.isEmpty(data.collectionName)) {
-          throw new Exception(BaseMessages.getString(PKG,
-              "MongoDBLookup.ErrorMessage.NoCollectionSpecified"));
+          throw new Exception(BaseMessages.getString(PKG, "MongoDBLookup.ErrorMessage.NoCollectionSpecified"));
         }
 
         data.clientWrapper = new MongoClientWrapper(meta, this.getParentVariableSpace());
@@ -187,7 +180,7 @@ public class MongoDBLookup extends BaseStep implements StepInterface {
         return true;
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "MongoDBLookup.ErrorConnectingToMongoDb.Exception",
-            data.hostname, "" + data.port, data.databaseName, data.collectionName), e);
+            meta.getServers(), "", data.databaseName, data.collectionName), e);
         return false;
       }
     } else {

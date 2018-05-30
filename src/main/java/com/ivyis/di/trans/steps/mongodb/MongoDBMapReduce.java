@@ -94,10 +94,6 @@ public class MongoDBMapReduce extends BaseStep implements StepInterface {
       meta = (MongoDBMapReduceMeta) smi;
       data = (MongoDBMapReduceData) sdi;
 
-      data.hostname = environmentSubstitute(meta.getHostname());
-      data.port =
-          Const.toInt(environmentSubstitute(meta.getPort()),
-              Integer.parseInt(MongoClientWrapper.MONGODB_DEFAUL_PORT));
       data.databaseName = environmentSubstitute(meta.getDatabaseName());
       data.collectionName = environmentSubstitute(meta.getCollectionName());
       data.mapFunction = environmentSubstitute(meta.getMapFunction());
@@ -128,7 +124,7 @@ public class MongoDBMapReduce extends BaseStep implements StepInterface {
         return true;
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "MongoDBMapReduce.ErrorConnectingToMongoDb.Exception",
-            data.hostname, "" + data.port, data.databaseName, data.collectionName), e);
+            meta.getServers(), "", data.databaseName, data.collectionName), e);
         return false;
       }
     } else {

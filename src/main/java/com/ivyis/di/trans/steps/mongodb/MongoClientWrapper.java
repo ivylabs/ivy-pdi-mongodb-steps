@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import org.apache.commons.lang.StringUtils;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Binary;
 import org.bson.types.Code;
@@ -17,8 +20,10 @@ import org.bson.types.ObjectId;
 import org.bson.types.Symbol;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.ValueMeta;
+import org.pentaho.di.core.logging.LogChannel;
 import org.pentaho.di.core.row.ValueMetaInterface;
+import org.pentaho.di.core.row.value.ValueMetaFactory;
+import org.pentaho.di.core.row.value.ValueMetaString;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.i18n.BaseMessages;
 
@@ -31,7 +36,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand;
 import com.mongodb.MapReduceOutput;
-import com.mongodb.Mongo;
 
 /**
  * The MongoDB connection client wrapper.
@@ -43,7 +47,8 @@ public class MongoClientWrapper {
   private static final Class<?> PKG = MongoClientWrapper.class;
   public static final String MONGODB_DEFAUL_PORT = "27017";
 
-  private Mongo mongo;
+  private String url;
+  private MongoClient mongoClient;
   private MongoDBMeta meta;
   private VariableSpace vars;
 
@@ -51,31 +56,54 @@ public class MongoClientWrapper {
       throws UnknownHostException {
     this.meta = meta;
     this.vars = vars;
-    this.mongo =
-        new Mongo(this.vars.environmentSubstitute(meta.getHostname()), Integer.parseInt(this.vars
-            .environmentSubstitute(meta.getPort())));
+
+    String username = vars.environmentSubstitute( meta.getUsername() );
+    String password = vars.environmentSubstitute( meta.getPassword() );
+    String servers = vars.environmentSubstitute( meta.getServers() );
+    String authDb = vars.environmentSubstitute( meta.getAuthDb() );
+    String authMechanism = vars.environmentSubstitute( meta.getAuthMechanism() );
+
+
+    this.url = "mongodb://";
+    if ( StringUtils.isNotEmpty( username )) {
+      url+=username;
+      if (StringUtils.isNotEmpty( password )) {
+        url+=":"+password;
+      }
+      url+="@";
+    }
+    if (StringUtils.isNotEmpty( servers )) {
+      url+=servers;
+    }
+    if (StringUtils.isNotEmpty( authDb )) {
+      url+="/?authSource="+authDb;
+    }
+    if ( StringUtils.isNotEmpty(authMechanism)){
+      url+="&authMechanism="+authMechanism;
+    }
+
+    LogChannel.GENERAL.logBasic("MONGO URI : "+url);
+
+    MongoClientURI clientUri = new MongoClientURI( url );
+    this.mongoClient = new MongoClient(clientUri);
+
   }
 
   public List<String> getDatabaseNames() {
-    return mongo.getDatabaseNames();
+    return mongoClient.getDatabaseNames();
   }
 
   public void dispose() {
-    mongo.close();
+    mongoClient.close();
   }
 
   public Set<String> getCollectionsNames(String dB) {
     final DB db = getDb(dB);
-    if (!Const.isEmpty(this.vars.environmentSubstitute(meta.getUsername()))
-        && !Const.isEmpty(this.vars.environmentSubstitute(meta.getPassword()))) {
-      db.authenticateCommand(this.vars.environmentSubstitute(meta.getUsername()), this.vars
-          .environmentSubstitute(meta.getPassword()).toCharArray());
-    }
     return db.getCollectionNames();
   }
 
   public DB getDb(String db) {
-    return mongo.getDB(db);
+    return mongoClient.getDB(db);
   }
 
   public DBCollection getCollection(String db, String collection) throws KettleException {
@@ -187,7 +215,7 @@ public class MongoClientWrapper {
           }
           newField.mFieldName = finalName;
           newField.mFieldPath = finalPath;
-          newField.mKettleType = ValueMeta.getTypeDesc(kettleType);
+          newField.mKettleType = ValueMetaFactory.getValueMetaName(kettleType);
           newField.mPercentageOfSample = 1;
 
           lookup.put(finalPath, newField);
@@ -270,7 +298,7 @@ public class MongoClientWrapper {
           }
           newField.mFieldName = finalPath;
           newField.mFieldPath = finalName;
-          newField.mKettleType = ValueMeta.getTypeDesc(kettleType);
+          newField.mKettleType = ValueMetaFactory.getValueMetaName(kettleType);
           newField.mPercentageOfSample = 1;
 
           lookup.put(finalPath, newField);
@@ -310,7 +338,7 @@ public class MongoClientWrapper {
 
       if (m.mDisparateTypes) {
         // force type to string if we've seen this path more than once with incompatible types
-        m.mKettleType = ValueMeta.getTypeDesc(ValueMeta.TYPE_STRING);
+        m.mKettleType = new ValueMetaString().getTypeDesc();
       }
       discoveredFields.add(m);
     }

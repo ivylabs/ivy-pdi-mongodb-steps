@@ -32,12 +32,12 @@ public class MongoDBMapReduceData extends BaseStepData implements StepDataInterf
   public int nrPrevFields;
   public int rowNumber = 0;
   public Iterator<DBObject> mapReduceResult;
-  public String hostname;
-  public int port;
+
   public String databaseName;
   public String collectionName;
   public String mapFunction;
   public String reduceFunction;
+  public String servers;
 
   private List<MongoField> fields;
   private MongoArrayExpansion mExpansionHandler;

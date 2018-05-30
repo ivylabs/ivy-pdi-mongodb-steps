@@ -4,7 +4,7 @@
 
 	<groupId>com.ivyis.di.trans.steps.mongodb</groupId>
 	<artifactId>ivy-pdi-mongodb-steps</artifactId>
-	<version>1.0.1</version>
+	<version>2.0.0</version>
 	<description>Ivy Information Systems MongoDB steps plugin.</description>
 	<inceptionYear>2015</inceptionYear>
 	<licenses>
@@ -19,15 +19,14 @@
 		<maven.compiler.source>1.5</maven.compiler.source>
 		<maven.compiler.target>1.5</maven.compiler.target>
 		<encoding>UTF-8</encoding>
-		<kettle.version>5.0.2</kettle.version>
-		<kettle.db.version>4.4.3.1</kettle.db.version>
+		<kettle.version>8.1-SNAPSHOT</kettle.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- Pentaho dependencies -->
@@ -38,17 +37,7 @@
 		</dependency>
 		<dependency>
 			<groupId>pentaho-kettle</groupId>
-			<artifactId>kettle-db</artifactId>
-			<version>${kettle.db.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-kettle</groupId>
 			<artifactId>kettle-engine</artifactId>
-			<version>${kettle.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>pentaho-kettle</groupId>
-			<artifactId>kettle-dbdialog</artifactId>
 			<version>${kettle.version}</version>
 		</dependency>
 		<dependency>
@@ -59,12 +48,13 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>2.12.3</version>
+			<version>3.6.3</version>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+<!---
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -86,6 +76,7 @@
 					<configLocation>checkstyle.xml</configLocation>
 				</configuration>
 			</plugin>
+-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
