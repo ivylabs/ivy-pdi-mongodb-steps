@@ -1,5 +1,7 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,7 +55,7 @@ public class MongoClientWrapper {
   private VariableSpace vars;
 
   public MongoClientWrapper(MongoDBMeta meta, VariableSpace vars)
-      throws UnknownHostException {
+      throws UnknownHostException, UnsupportedEncodingException {
     this.meta = meta;
     this.vars = vars;
 
@@ -66,17 +68,17 @@ public class MongoClientWrapper {
 
     this.url = "mongodb://";
     if ( StringUtils.isNotEmpty( username )) {
-      url+=username;
+      url+=URLEncoder.encode(username, "UTF-8");
       if (StringUtils.isNotEmpty( password )) {
-        url+=":"+password;
+        url+=":"+URLEncoder.encode(password, "UTF-8");
       }
       url+="@";
     }
     if (StringUtils.isNotEmpty( servers )) {
-      url+=servers;
+      url+=URLEncoder.encode(servers, "UTF-8");
     }
     if (StringUtils.isNotEmpty( authDb )) {
-      url+="/?authSource="+authDb;
+      url+="/?authSource="+URLEncoder.encode(authDb, "UTF-8");
     }
     if ( StringUtils.isNotEmpty(authMechanism)){
       url+="&authMechanism="+authMechanism;

@@ -1,5 +1,6 @@
 package com.ivyis.di.ui.trans.steps.mongodb;
 
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -712,6 +713,8 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
         } catch (UnknownHostException e) {
           new ErrorDialog(shell, stepname, BaseMessages.getString(PKG,
               "MongoDBLookupDialog.ErrorMessage.UnknownHost"), e);
+        } catch ( UnsupportedEncodingException e ) {
+          new ErrorDialog(shell, stepname, "Unsupported encoding!", e);
         }
       }
     } else {

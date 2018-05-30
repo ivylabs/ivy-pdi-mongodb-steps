@@ -3,6 +3,7 @@ package com.ivyis.di.trans.steps.mongodb;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Counter;
@@ -123,6 +124,18 @@ public class MongoDBInsertMeta extends MongoDBMeta implements StepMetaInterface 
   public void readData(Node stepnode) throws KettleXMLException {
     try {
       servers = XMLHandler.getTagValue(stepnode, "servers");
+      String hostname = XMLHandler.getTagValue(stepnode, "hostname");
+      String port = XMLHandler.getTagValue(stepnode, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = XMLHandler.getTagValue(stepnode, "username");
       password = Encr.decryptPasswordOptionallyEncrypted(XMLHandler.getTagValue(stepnode, "password"));
       authDb = XMLHandler.getTagValue(stepnode, "auth_db");
@@ -151,11 +164,22 @@ public class MongoDBInsertMeta extends MongoDBMeta implements StepMetaInterface 
    * @throws KettleException
    */
   @Override
-  public void readRep(Repository rep, ObjectId idStep,
-      List<DatabaseMeta> databases, Map<String, Counter> counters)
+  public void readRep(Repository rep, IMetaStore metaStore, ObjectId idStep, List<DatabaseMeta> databases)
       throws KettleException {
     try {
       servers = rep.getStepAttributeString(idStep, "servers");
+      String hostname = rep.getStepAttributeString(idStep, "hostname");
+      String port = rep.getStepAttributeString(idStep, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = rep.getStepAttributeString(idStep, "username");
       password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString(idStep, "password") );
       authDb = rep.getStepAttributeString(idStep, "auth_db");
@@ -186,8 +210,7 @@ public class MongoDBInsertMeta extends MongoDBMeta implements StepMetaInterface 
    * @throws KettleException
    */
   @Override
-  public void saveRep(Repository rep, ObjectId idTransformation,
-      ObjectId idStep) throws KettleException {
+  public void saveRep(Repository rep, IMetaStore metaStore, ObjectId idTransformation, ObjectId idStep) throws KettleException {
     try {
       rep.saveStepAttribute(idTransformation, idStep, "servers", servers);
       rep.saveStepAttribute(idTransformation, idStep, "username", username);

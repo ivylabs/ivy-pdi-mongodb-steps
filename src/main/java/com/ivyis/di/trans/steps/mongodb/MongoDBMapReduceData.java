@@ -1,5 +1,6 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -219,6 +220,8 @@ public class MongoDBMapReduceData extends BaseStepData implements StepDataInterf
       throw new KettleException("MongoDB port number format", e1);
     } catch (UnknownHostException e1) {
       throw new KettleException("Unknown MongoDB hostname", e1);
+    } catch ( UnsupportedEncodingException e1 ) {
+      throw new KettleException("Unsupported Encoding", e1);
     }
     try {
       final String db = vars.environmentSubstitute(meta.getDatabaseName());

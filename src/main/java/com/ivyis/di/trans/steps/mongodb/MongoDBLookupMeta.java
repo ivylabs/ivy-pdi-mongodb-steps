@@ -3,6 +3,7 @@ package com.ivyis.di.trans.steps.mongodb;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
@@ -227,6 +228,18 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
   public void readData(Node stepnode) throws KettleXMLException {
     try {
       servers = XMLHandler.getTagValue(stepnode, "servers");
+      String hostname = XMLHandler.getTagValue(stepnode, "hostname");
+      String port = XMLHandler.getTagValue(stepnode, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = XMLHandler.getTagValue(stepnode, "username");
       password = Encr.decryptPasswordOptionallyEncrypted(XMLHandler.getTagValue(stepnode, "password"));
       authDb = XMLHandler.getTagValue(stepnode, "auth_db");
@@ -234,7 +247,7 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
 
       databaseName = XMLHandler.getTagValue(stepnode, "databaseName");
       collectionName = XMLHandler.getTagValue(stepnode, "collectionName");
-      
+
       final Node lookup = XMLHandler.getSubNode(stepnode, "lookup");
 
       final int nrkeys = XMLHandler.countNodes(lookup, "key");
@@ -282,6 +295,18 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
   public void readRep( Repository rep, IMetaStore metaStore, ObjectId idStep, List<DatabaseMeta> databases ) throws KettleException {
     try {
       servers = rep.getStepAttributeString(idStep, "servers");
+      String hostname = rep.getStepAttributeString(idStep, "hostname");
+      String port = rep.getStepAttributeString(idStep, "hostname");
+      if ( StringUtils.isNotEmpty(hostname)) {
+        if (StringUtils.isNotEmpty( servers )) {
+          servers+=",";
+        }
+        servers+=hostname;
+        if (StringUtils.isNotEmpty(port)) {
+          servers+=":"+port;
+        }
+      }
+
       username = rep.getStepAttributeString(idStep, "username");
       password = Encr.decryptPasswordOptionallyEncrypted( rep.getStepAttributeString(idStep, "password") );
       authDb = rep.getStepAttributeString(idStep, "auth_db");
