@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.bson.types.Binary;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
@@ -95,7 +96,7 @@ public class MongoField implements Comparable<MongoField> {
    * @throws KettleException if a problem occurs
    */
   public void init(int outputIndex) throws KettleException {
-    if (Const.isEmpty(mFieldPath)) {
+    if (StringUtils.isEmpty(mFieldPath)) {
       throw new KettleException(BaseMessages.getString(PKG,
           "MongoDbOutput.Messages.MongoField.Error.NoPathSet"));
     }

@@ -16,8 +16,8 @@
 	</licenses>
 	<properties>
 		<plugin.name>IvyMongoDBSteps</plugin.name>
-		<maven.compiler.source>1.5</maven.compiler.source>
-		<maven.compiler.target>1.5</maven.compiler.target>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<kettle.version>8.1-SNAPSHOT</kettle.version>
 	</properties>

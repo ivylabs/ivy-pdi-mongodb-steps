@@ -3,6 +3,7 @@ package com.ivyis.di.trans.steps.mongodb;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.ValueMeta;
@@ -165,11 +166,11 @@ public class MongoDBLookup extends BaseStep implements StepInterface {
       data.setMongoFields(mfList);
 
       try {
-        if (Const.isEmpty(data.databaseName)) {
+        if (StringUtils.isEmpty(data.databaseName)) {
           throw new Exception(BaseMessages.getString(PKG, "MongoDBLookup.ErrorMessage.NoDBSpecified"));
         }
 
-        if (Const.isEmpty(data.collectionName)) {
+        if (StringUtils.isEmpty(data.collectionName)) {
           throw new Exception(BaseMessages.getString(PKG, "MongoDBLookup.ErrorMessage.NoCollectionSpecified"));
         }
 

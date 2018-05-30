@@ -392,7 +392,7 @@ public class MongoDBLookupMeta extends MongoDBMeta implements StepMetaInterface 
   @Override
   public void getFields(RowMetaInterface r, String origin, RowMetaInterface[] info,
       StepMeta nextStep, VariableSpace space) throws KettleStepException {
-    if (Const.isEmpty(info) || info[0] == null) {
+    if (info==null || info[0] == null) {
       for (int i = 0; i < getReturnValueNewName().length; i++) {
         try {
           final ValueMetaInterface v =

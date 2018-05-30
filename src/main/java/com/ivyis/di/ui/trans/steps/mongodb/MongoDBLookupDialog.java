@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -691,8 +692,8 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
   }
 
   protected void getlookup() {
-    if (!Const.isEmpty(wServers.getText()) && !Const.isEmpty(wDbName.getText())
-        && !Const.isEmpty(wCollection.getText())) {
+    if (!StringUtils.isEmpty(wServers.getText()) && !StringUtils.isEmpty(wDbName.getText())
+        && !StringUtils.isEmpty(wCollection.getText())) {
       final int samples = 100;
       if (samples > 0) {
         try {
@@ -720,13 +721,13 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     } else {
       // pop up an error dialog
       String missingConDetails = "";
-      if (Const.isEmpty(wServers.getText())) {
+      if (StringUtils.isEmpty(wServers.getText())) {
         missingConDetails += " server(s)";
       }
-      if (Const.isEmpty(wDbName.getText())) {
+      if (StringUtils.isEmpty(wDbName.getText())) {
         missingConDetails += " database";
       }
-      if (Const.isEmpty(wCollection.getText())) {
+      if (StringUtils.isEmpty(wCollection.getText())) {
         missingConDetails += " collection";
       }
       new ErrorDialog(shell, stepname, BaseMessages.getString(PKG,
@@ -767,7 +768,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
 
     final String servers = transMeta.environmentSubstitute(wServers.getText());
 
-    if (!Const.isEmpty(servers)) {
+    if (!StringUtils.isEmpty(servers)) {
       final MongoDBLookupMeta meta = new MongoDBLookupMeta();
       getInfo(meta, false);
       try {
@@ -799,7 +800,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
       smd.open();
     }
 
-    if (!Const.isEmpty(current)) {
+    if (!StringUtils.isEmpty(current)) {
       wDbName.setText(current);
     }
   }
@@ -811,7 +812,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     final String current = wCollection.getText();
     wCollection.removeAll();
 
-    if (!Const.isEmpty(servers) && !Const.isEmpty(dB)) {
+    if (!StringUtils.isEmpty(servers) && !StringUtils.isEmpty(dB)) {
       final MongoDBLookupMeta meta = new MongoDBLookupMeta();
       getInfo(meta, false);
       try {
@@ -836,10 +837,10 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
       // popup some feedback
 
       String missingConnDetails = "";
-      if (Const.isEmpty(servers)) {
+      if (StringUtils.isEmpty(servers)) {
         missingConnDetails += "server(s)";
       }
-      if (Const.isEmpty(dB)) {
+      if (StringUtils.isEmpty(dB)) {
         missingConnDetails += " database";
       }
       final MessageBox smd = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
@@ -850,7 +851,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
       smd.open();
     }
 
-    if (!Const.isEmpty(current)) {
+    if (!StringUtils.isEmpty(current)) {
       wCollection.setText(current);
     }
   }
@@ -925,7 +926,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
    * Let the plugin know about the entered data.
    */
   private void ok() {
-    if (!Const.isEmpty(wStepname.getText())) {
+    if (!StringUtils.isEmpty(wStepname.getText())) {
       stepname = wStepname.getText();
       getInfo(input, true);
       dispose();
@@ -1028,7 +1029,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     info.setAuthDb(Const.NVL(wAuthDb.getText(), ""));
     info.setAuthMechanism(Const.NVL(wAuthMechanism.getText(), ""));
 
-    if (validation && Const.isEmpty(wDbName.getText())) {
+    if (validation && StringUtils.isEmpty(wDbName.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBLookupDialog.DbName.Mandatory.DialogMessage"));
@@ -1038,7 +1039,7 @@ public class MongoDBLookupDialog extends BaseStepDialog implements
     }
     info.setDatabaseName(Const.NVL(wDbName.getText(), ""));
 
-    if (validation && Const.isEmpty(wCollection.getText())) {
+    if (validation && StringUtils.isEmpty(wCollection.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBLookupDialog.Collection.Mandatory.DialogMessage"));

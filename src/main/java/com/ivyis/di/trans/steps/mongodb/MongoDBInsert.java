@@ -1,5 +1,6 @@
 package com.ivyis.di.trans.steps.mongodb;
 
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMeta;
@@ -97,12 +98,12 @@ public class MongoDBInsert extends BaseStep implements StepInterface {
           .getCollectionName());
 
       try {
-        if (Const.isEmpty(data.databaseName)) {
+        if ( StringUtils.isEmpty( data.databaseName )) {
           throw new Exception(BaseMessages.getString(PKG,
               "MongoDBMapReduce.ErrorMessage.NoDBSpecified"));
         }
 
-        if (Const.isEmpty(data.collectionName)) {
+        if (StringUtils.isEmpty(data.collectionName)) {
           throw new Exception(
               BaseMessages
                   .getString(PKG,

@@ -75,16 +75,14 @@ public class MongoClientWrapper {
       url+="@";
     }
     if (StringUtils.isNotEmpty( servers )) {
-      url+=URLEncoder.encode(servers, "UTF-8");
+      url+=servers;
     }
     if (StringUtils.isNotEmpty( authDb )) {
-      url+="/?authSource="+URLEncoder.encode(authDb, "UTF-8");
+      url+="/?authSource="+authDb;
     }
     if ( StringUtils.isNotEmpty(authMechanism)){
       url+="&authMechanism="+authMechanism;
     }
-
-    LogChannel.GENERAL.logBasic("MONGO URI : "+url);
 
     MongoClientURI clientUri = new MongoClientURI( url );
     this.mongoClient = new MongoClient(clientUri);
@@ -111,7 +109,7 @@ public class MongoClientWrapper {
   public DBCollection getCollection(String db, String collection) throws KettleException {
     final DB database = getDb(db);
 
-    if (Const.isEmpty(collection)) {
+    if (StringUtils.isEmpty(collection)) {
       throw new KettleException(BaseMessages.getString(PKG,
           "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
     }
@@ -122,7 +120,7 @@ public class MongoClientWrapper {
       String reduceFunction) throws KettleException {
     final DB database = getDb(db);
 
-    if (Const.isEmpty(collection)) {
+    if (StringUtils.isEmpty(collection)) {
       throw new KettleException(BaseMessages.getString(PKG,
           "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
     }
@@ -148,7 +146,7 @@ public class MongoClientWrapper {
       try {
         final DB database = getDb(db);
 
-        if (Const.isEmpty(collection)) {
+        if (StringUtils.isEmpty(collection)) {
           throw new KettleException(BaseMessages.getString(PKG,
               "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
         }
@@ -483,7 +481,7 @@ public class MongoClientWrapper {
       try {
         final DB database = getDb(db);
 
-        if (Const.isEmpty(collection)) {
+        if (StringUtils.isEmpty(collection)) {
           throw new KettleException(BaseMessages.getString(PKG,
               "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
         }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -736,8 +737,8 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
   }
 
   private void getFields(MongoDBMapReduceMeta meta) {
-    if (!Const.isEmpty( wServers.getText()) && !Const.isEmpty(wDbName.getText())
-        && !Const.isEmpty(wCollection.getText())) {
+    if (!StringUtils.isEmpty( wServers.getText()) && !StringUtils.isEmpty(wDbName.getText())
+        && !StringUtils.isEmpty(wCollection.getText())) {
       final EnterNumberDialog end =
           new EnterNumberDialog(shell, 100, BaseMessages.getString(PKG,
               "MongoDBMapReduceDialog.SampleDocuments.Title"), BaseMessages.getString(PKG,
@@ -774,13 +775,13 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
       // pop up an error dialog
 
       String missingConDetails = "";
-      if (Const.isEmpty( wServers.getText())) {
+      if (StringUtils.isEmpty( wServers.getText())) {
         missingConDetails += " host name(s)";
       }
-      if (Const.isEmpty(wDbName.getText())) {
+      if (StringUtils.isEmpty(wDbName.getText())) {
         missingConDetails += " database";
       }
-      if (Const.isEmpty(wCollection.getText())) {
+      if (StringUtils.isEmpty(wCollection.getText())) {
         missingConDetails += " collection";
       }
 
@@ -826,7 +827,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
 
     final String hostname = transMeta.environmentSubstitute( wServers.getText());
 
-    if (!Const.isEmpty(hostname)) {
+    if (!StringUtils.isEmpty(hostname)) {
       final MongoDBMapReduceMeta meta = new MongoDBMapReduceMeta();
       getInfo(meta, false);
       try {
@@ -858,7 +859,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
       smd.open();
     }
 
-    if (!Const.isEmpty(current)) {
+    if (!StringUtils.isEmpty(current)) {
       wDbName.setText(current);
     }
   }
@@ -870,7 +871,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     final String current = wCollection.getText();
     wCollection.removeAll();
 
-    if (!Const.isEmpty(hostname) && !Const.isEmpty(dB)) {
+    if (!StringUtils.isEmpty(hostname) && !StringUtils.isEmpty(dB)) {
       final MongoDBMapReduceMeta meta = new MongoDBMapReduceMeta();
       getInfo(meta, false);
       try {
@@ -895,10 +896,10 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     } else {
       // popup some feedback
       String missingConnDetails = "";
-      if (Const.isEmpty(hostname)) {
+      if (StringUtils.isEmpty(hostname)) {
         missingConnDetails += "host name(s)";
       }
-      if (Const.isEmpty(dB)) {
+      if (StringUtils.isEmpty(dB)) {
         missingConnDetails += " database";
       }
       final MessageBox smd = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
@@ -909,7 +910,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
       smd.open();
     }
 
-    if (!Const.isEmpty(current)) {
+    if (!StringUtils.isEmpty(current)) {
       wCollection.setText(current);
     }
   }
@@ -927,7 +928,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
    * Let the plugin know about the entered data.
    */
   private void ok() {
-    if (!Const.isEmpty(wStepname.getText())) {
+    if (!StringUtils.isEmpty(wStepname.getText())) {
       stepname = wStepname.getText();
       getInfo(input, true);
       dispose();
@@ -973,7 +974,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     info.setAuthDb(Const.NVL(wAuthDb.getText(), ""));
     info.setAuthMechanism(Const.NVL(wAuthMechanism.getText(), ""));
 
-    if (validation && Const.isEmpty(wDbName.getText())) {
+    if (validation && StringUtils.isEmpty(wDbName.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBMapReduceDialog.DbName.Mandatory.DialogMessage"));
@@ -983,7 +984,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     }
     info.setDatabaseName(Const.NVL(wDbName.getText(), ""));
 
-    if (validation && Const.isEmpty(wCollection.getText())) {
+    if (validation && StringUtils.isEmpty(wCollection.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBMapReduceDialog.Collection.Mandatory.DialogMessage"));
@@ -993,7 +994,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     }
     info.setCollectionName(Const.NVL(wCollection.getText(), ""));
 
-    if (validation && Const.isEmpty(wMapFuncScript.getText())) {
+    if (validation && StringUtils.isEmpty(wMapFuncScript.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBMapReduceDialog.MapFuncScript.Mandatory.DialogMessage"));
@@ -1003,7 +1004,7 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     }
     info.setMapFunction(Const.NVL(wMapFuncScript.getText(), ""));
 
-    if (validation && Const.isEmpty(wReduceFuncScript.getText())) {
+    if (validation && StringUtils.isEmpty(wReduceFuncScript.getText())) {
       final MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG,
           "MongoDBMapReduceDialog.ReduceFuncScript.Mandatory.DialogMessage"));
@@ -1046,15 +1047,15 @@ public class MongoDBInsertDialog extends BaseStepDialog implements StepDialogInt
     for (MongoField f : fields) {
       final TableItem item = new TableItem(wfieldsView.table, SWT.NONE);
 
-      if (!Const.isEmpty(f.mFieldName)) {
+      if (!StringUtils.isEmpty(f.mFieldName)) {
         item.setText(1, f.mFieldName);
       }
 
-      if (!Const.isEmpty(f.mFieldPath)) {
+      if (!StringUtils.isEmpty(f.mFieldPath)) {
         item.setText(2, f.mFieldPath);
       }
 
-      if (!Const.isEmpty(f.mKettleType)) {
+      if (!StringUtils.isEmpty(f.mKettleType)) {
         item.setText(3, f.mKettleType);
       }
     }
